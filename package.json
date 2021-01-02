@@ -1,6 +1,6 @@
 {
   "name": "@digital-magic/io-ts-extensions",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Additional utilities for io-ts library",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
