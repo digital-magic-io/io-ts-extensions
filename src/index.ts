@@ -2,7 +2,7 @@ import * as t from 'io-ts'
 import * as E from 'fp-ts/lib/Either'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { PathReporter, failure } from 'io-ts/lib/PathReporter'
-import { OptionalType } from '@digital-magic/ts-common-utils/lib/type'
+import { NullableType, NullUnionType, OptionalType } from '@digital-magic/ts-common-utils/lib/type'
 
 export const decoder = <I, A>(name: string, validate: t.Validate<I, A>): t.Decoder<I, A> => ({
   name: name,
@@ -19,6 +19,30 @@ export const codec = <A, O = A, I = unknown>(decoder: t.Decoder<I, A>, encoder: 
 
 // TODO: Make these extensions to be a wrapper for io-ts that adds additional functions. So we can use t.optional
 
+export type Nullable<RT extends t.Any> = t.UnionType<
+  // tslint:disable-next-line:readonly-array
+  [RT, t.NullType, t.UndefinedType],
+  NullableType<t.TypeOf<RT>>,
+  NullableType<t.OutputOf<RT>>,
+  NullableType<t.InputOf<RT>>
+
+  // t.TypeOf<RT> | null | undefined,
+  // t.OutputOf<RT> | null | undefined,
+  // t.InputOf<RT> | null | undefined
+
+  // t.TypeOf<RT | t.NullC | t.UndefinedC>,
+  // t.OutputOf<RT | t.NullC | t.UndefinedC>,
+  // t.InputOf<RT | t.NullC | t.UndefinedC>
+>
+
+// TODO: If uncomment return type - compilation fails
+export const nullable = <RT extends t.Any>(
+  type: RT,
+  name: string = `${type.name} | null | undefined`
+) /*: Nullable<RT>*/ =>
+  // tslint:disable-next-line:readonly-array
+  t.union<[RT, t.NullType, t.UndefinedType]>([type, t.null, t.undefined], name)
+
 export type Optional<RT extends t.Any> = t.UnionType<
   // tslint:disable-next-line:readonly-array
   [RT, t.UndefinedType],
@@ -30,6 +54,18 @@ export type Optional<RT extends t.Any> = t.UnionType<
 export const optional = <RT extends t.Any>(type: RT, name: string = `${type.name} | undefined`): Optional<RT> =>
   // tslint:disable-next-line:readonly-array
   t.union<[RT, t.UndefinedType]>([type, t.undefined], name)
+
+export type NullUnion<RT extends t.Any> = t.UnionType<
+  // tslint:disable-next-line:readonly-array
+  [RT, t.NullType],
+  NullUnionType<t.TypeOf<RT>>,
+  NullUnionType<t.OutputOf<RT>>,
+  NullUnionType<t.InputOf<RT>>
+>
+
+export const nullUnion = <RT extends t.Any>(type: RT, name: string = `${type.name} | null`): NullUnion<RT> =>
+  // tslint:disable-next-line:readonly-array
+  t.union<[RT, t.NullType]>([type, t.null], name)
 
 export class EnumType<A> extends t.Type<A> {
   public readonly _tag: 'EnumType' = 'EnumType'

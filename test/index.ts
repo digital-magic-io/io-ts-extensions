@@ -1,7 +1,7 @@
 import assert from 'assert'
 import * as t from 'io-ts'
 import * as E from 'fp-ts/Either'
-import { codec, createEnumType, decoder, encoder, optional, unsafeDecode } from '../src'
+import { codec, createEnumType, decoder, encoder, nullable, optional, nullUnion, unsafeDecode } from '../src'
 import { isNotEmptyString } from '@digital-magic/ts-common-utils/lib/type'
 
 describe('index', () => {
@@ -19,10 +19,32 @@ describe('index', () => {
     assert.strictEqual(E.isRight(NonEmptyStringCodec.decode('str')), true)
     assert.strictEqual(E.isLeft(NonEmptyStringCodec.decode('')), true)
   })
-  it('Optional', () => {
-    const OptionalString = optional(t.string, 'Optional String')
+  it('Nullable', () => {
+    const NullableString = nullable(t.string, 'NullableString')
     assert.strictEqual(E.isRight(t.string.decode(undefined)), false)
+    assert.strictEqual(E.isRight(t.string.decode(null)), false)
+    assert.strictEqual(E.isRight(t.string.decode('test')), true)
+    assert.strictEqual(E.isRight(NullableString.decode(undefined)), true)
+    assert.strictEqual(E.isRight(NullableString.decode(null)), true)
+    assert.strictEqual(E.isRight(NullableString.decode('test')), true)
+  })
+  it('Optional', () => {
+    const OptionalString = optional(t.string, 'OptionalString')
+    assert.strictEqual(E.isRight(t.string.decode(undefined)), false)
+    assert.strictEqual(E.isRight(t.string.decode(null)), false)
+    assert.strictEqual(E.isRight(t.string.decode('test')), true)
     assert.strictEqual(E.isRight(OptionalString.decode(undefined)), true)
+    assert.strictEqual(E.isRight(OptionalString.decode(null)), false)
+    assert.strictEqual(E.isRight(OptionalString.decode('test')), true)
+  })
+  it('NullUnion', () => {
+    const NullUnion = nullUnion(t.string, 'NullUnion')
+    assert.strictEqual(E.isRight(t.string.decode(undefined)), false)
+    assert.strictEqual(E.isRight(t.string.decode(null)), false)
+    assert.strictEqual(E.isRight(t.string.decode('test')), true)
+    assert.strictEqual(E.isRight(NullUnion.decode(undefined)), false)
+    assert.strictEqual(E.isRight(NullUnion.decode(null)), true)
+    assert.strictEqual(E.isRight(NullUnion.decode('test')), true)
   })
   it('createEnumType', () => {
     enum Sex {

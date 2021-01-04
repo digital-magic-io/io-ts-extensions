@@ -51,6 +51,8 @@
     "husky": "^4.3.6",
     "io-ts": "^2.2.4",
     "jest": "^26.6.3",
+    "monocle-ts": "^2.3.3",
+    "newtype-ts": "^0.3.4",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
     "rimraf": "^3.0.2",
@@ -66,7 +68,7 @@
     "@digital-magic/ts-common-utils": ">= 1.0.13",
     "fp-ts": ">= 2.9.3",
     "io-ts": ">= 2.2.4",
-    "monocle-ts": ">= 2.2.0",
+    "monocle-ts": ">= 2.3.3",
     "newtype-ts": ">= 0.3.4"
   },
   "husky": {

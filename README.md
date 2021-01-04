@@ -1,2 +1,2 @@
-# ts-template
-Template file for generic Type Script projects
+# io-ts-extensions
+Additional utilities for io-ts library
