@@ -1,7 +1,17 @@
 import assert from 'assert'
 import * as t from 'io-ts'
 import * as E from 'fp-ts/Either'
-import { codec, createEnumType, decoder, encoder, nullable, optional, nullUnion, unsafeDecode } from '../src'
+import {
+  codec,
+  createEnumType,
+  decoder,
+  encoder,
+  nullable,
+  optional,
+  nullUnion,
+  unsafeDecode,
+  generateError
+} from '../src'
 import { isNotEmptyString } from '@digital-magic/ts-common-utils/lib/type'
 
 describe('index', () => {
@@ -14,8 +24,12 @@ describe('index', () => {
     )
     const NonEmptyStringCodec = codec(NonEmptyStringDecoder, NonEmptyStringEncoder, t.string.is)
 
+    assert.strictEqual(E.isRight(NonEmptyStringDecoder.decode('str')), true)
+    assert.strictEqual(E.isLeft(NonEmptyStringDecoder.decode('')), true)
+
     assert.strictEqual(NonEmptyStringCodec.encode('str'), 'str')
     assert.strictEqual(NonEmptyStringCodec.encode(''), '')
+
     assert.strictEqual(E.isRight(NonEmptyStringCodec.decode('str')), true)
     assert.strictEqual(E.isLeft(NonEmptyStringCodec.decode('')), true)
   })
@@ -55,8 +69,15 @@ describe('index', () => {
     assert.strictEqual(E.isRight(SexV.decode('M')), true)
     assert.strictEqual(E.isRight(SexV.decode('F')), true)
     assert.strictEqual(E.isRight(SexV.decode('A')), false)
+
+    const Sex2V = createEnumType<Sex>(Sex)
+    assert.strictEqual(E.isRight(Sex2V.decode('A')), false)
+  })
+  it('generateError', () => {
+    assert.strictEqual(generateError(t.string, 12).includes('Invalid value 12 supplied to : string'), true)
   })
   it('unsafeDecode', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const decode = unsafeDecode<number, any, t.NumberC>(t.number)
     assert.strictEqual(decode(1), 1)
     assert.throws(() => decode('1'))
