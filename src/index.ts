@@ -2,6 +2,7 @@ import * as t from 'io-ts'
 import * as E from 'fp-ts/lib/Either'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { PathReporter, failure } from 'io-ts/lib/PathReporter'
+import { NullableType, NullUnionType, OptionalType } from '@digital-magic/ts-common-utils/lib/type'
 
 export const decoder = <I, A>(name: string, validate: t.Validate<I, A>): t.Decoder<I, A> => ({
   name: name,
@@ -22,23 +23,47 @@ export const codec = <A, O = A, I = unknown>(
 
 // TODO: Make these extensions to be a wrapper for io-ts that adds additional functions. So we can use t.optional
 
-// eslint-disable-next-line functional/prefer-readonly-type
-export type Nullable<RT extends t.Any> = t.UnionC<[RT, t.NullType, t.UndefinedType]>
+export type Nullable<RT extends t.Any> = t.UnionType<
+  // eslint-disable-next-line functional/prefer-readonly-type
+  [RT, t.NullType, t.UndefinedType],
+  NullableType<t.TypeOf<RT>>,
+  NullableType<t.OutputOf<RT>>,
+  NullableType<t.InputOf<RT>>
+
+  // t.TypeOf<RT> | null | undefined,
+  // t.OutputOf<RT> | null | undefined,
+  // t.InputOf<RT> | null | undefined
+
+  // t.TypeOf<RT | t.NullC | t.UndefinedC>,
+  // t.OutputOf<RT | t.NullC | t.UndefinedC>,
+  // t.InputOf<RT | t.NullC | t.UndefinedC>
+>
 
 // TODO: If uncomment return type - compilation fails
-export const nullable = <RT extends t.Any>(type: RT, name = `${type.name} | null | undefined`): Nullable<RT> =>
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const nullable = <RT extends t.Any>(type: RT, name = `${type.name} | null | undefined`) =>
   // eslint-disable-next-line functional/prefer-readonly-type
   t.union<[RT, t.NullType, t.UndefinedType]>([type, t.null, t.undefined], name)
 
-// eslint-disable-next-line functional/prefer-readonly-type
-export type Optional<RT extends t.Any> = t.UnionC<[RT, t.UndefinedType]>
+export type Optional<RT extends t.Any> = t.UnionType<
+  // eslint-disable-next-line functional/prefer-readonly-type
+  [RT, t.UndefinedType],
+  OptionalType<t.TypeOf<RT>>,
+  OptionalType<t.OutputOf<RT>>,
+  OptionalType<t.InputOf<RT>>
+>
 
 export const optional = <RT extends t.Any>(type: RT, name = `${type.name} | undefined`): Optional<RT> =>
   // eslint-disable-next-line functional/prefer-readonly-type
   t.union<[RT, t.UndefinedType]>([type, t.undefined], name)
 
-// eslint-disable-next-line functional/prefer-readonly-type
-export type NullUnion<RT extends t.Any> = t.UnionC<[RT, t.NullType]>
+export type NullUnion<RT extends t.Any> = t.UnionType<
+  // eslint-disable-next-line functional/prefer-readonly-type
+  [RT, t.NullType],
+  NullUnionType<t.TypeOf<RT>>,
+  NullUnionType<t.OutputOf<RT>>,
+  NullUnionType<t.InputOf<RT>>
+>
 
 export const nullUnion = <RT extends t.Any>(type: RT, name = `${type.name} | null`): NullUnion<RT> =>
   // eslint-disable-next-line functional/prefer-readonly-type
